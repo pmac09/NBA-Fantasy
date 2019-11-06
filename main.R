@@ -1,6 +1,8 @@
 options("httr_oob_default" = T)
 options(stringsAsFactors = FALSE)
+
 library(tidyverse)
+library(data.table)
 library(httr)
 library(XML)
 library(Jmisc)
@@ -8,6 +10,33 @@ library(nbastatR)
 
 # source all functions
 sourceAll('./functions')
+
+
+# Create yahoo login token
+vToken <- getToken(cKey, cSecret)
+
+## API DOCUMENTATION 
+# https://developer.yahoo.com/fantasysports/guide/league-resource.html
+
+# API base URLs
+nbaURL    <- paste0('https://fantasysports.yahooapis.com/fantasy/v2/game/nba')
+leagueURL <- paste0("https://fantasysports.yahooapis.com/fantasy/v2/league/")
+teamURL   <- paste0("https://fantasysports.yahooapis.com/fantasy/v2/team/")
+playerURL <- paste0("https://fantasysports.yahooapis.com/fantasy/v2/player/")
+
+
+# Game Key for NBA
+vGameKey <- getData(vToken, nbaURL)$game$game_key
+
+# League Key
+vLeagueKey <- paste0(vGameKey,".l.17932")
+
+
+
+
+
+
+
 
 # Get nba schedule
 nba_schedule <- as_tibble(read.csv('./data/nba-2019-EasternStandardTime.csv')) %>%
