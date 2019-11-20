@@ -2,7 +2,7 @@
 # Initialise variabls
 start <- 0
 isNull <- FALSE
-playerData <- tibble()
+tmp_players <- tibble()
 
 while (!isNull){
   
@@ -24,15 +24,17 @@ while (!isNull){
       new <- tibble(
         yahoo_id  = playerList[[i]]$player_id,
         name      = playerList[[i]]$name$full,
+        initial   = substr(playerList[[i]]$name$first,1,1),
+        last_name = playerList[[i]]$name$last,
         team      = playerList[[i]]$editorial_team_full_name,
         abbr      = playerList[[i]]$editorial_team_abbr,
-        uniform   = playerList[[i]]$uniform_number,
+        uniform   = as.numeric(playerList[[i]]$uniform_number),
         pos       = playerList[[i]]$display_position,
         prmy_pos  = playerList[[i]]$primary_position,
         ownership = playerList[[i]]$ownership$ownership_type
       )
       
-      playerData <- bind_rows(playerData,new)
+      tmp_players <- bind_rows(tmp_players,new)
     }
   }  
   
@@ -44,36 +46,53 @@ while (!isNull){
   
 }
 
+write.csv(tmp_players, './data/players.csv', row.names = FALSE)
 
 
 
 
 
 
-
-
-
-
-
-teamData <- getData(vToken, paste0(teamURL,vGameKey, vLeagueID, '.t.7', '/roster;week=3'))
-
-
-
-playerData <- teamData$team$roster$players[1:length(teamData$team$roster$players)-1]
-
-
-
-schedule <- seasons_schedule(seasons = 2020)
-
-weekStarting <- '2019-11-04'
-current_week <- schedule %>%
-  filter(dateGame >= weekStarting) %>%
-  filter(dateGame <  as.Date(weekStarting)+7)
-
-playerStats <- box_scores(game_ids = current_week$idGame,
-                          box_score_types = 'Traditional',
-                          result_types = 'player')
-
-data <- playerStats$dataBoxScore[[1]]
-
-write.csv(data, 'weeklyStats.csv', row.names = FALSE)
+# # Get Team info from nabstatsR to get team id
+# tmp_teams <- nba_teams() %>%
+#   filter(isNonNBATeam == 0) %>%
+#   select(idTeam, nameTeam, slugTeam)
+# 
+# # Get PLayer info from nabstatsR to get player id
+# tmp_playerDetails <- seasons_players(seasons=2020) %>%
+#   mutate(namePlayerFirst = trimws(namePlayerFirst)) %>%
+#   select(idPlayer, namePlayer, namePlayerFirst, namePlayerLast, countSeasons)
+# 
+# # Get Roster info from nabstatsR to get link id
+# tmp_rosters <- seasons_rosters(seasons=2020) 
+# tmp_rosters2 <- tmp_rosters %>%
+#   select(idPlayer, idTeam, numberJersey)
+# 
+# # Join all the nbastatR data
+# tmp_full <- left_join(tmp_playerDetails, tmp_rosters2, by=c('idPlayer'='idPlayer'))
+# tmp_full2 <- left_join(tmp_full, tmp_teams, by=c('idTeam'='idTeam'))
+# 
+# 
+# 
+# 
+# tmp_fullDetails <- left_join(df_nbaPlayers, df_rosters, by=c('idPlayer'='idPlayer'))
+# 
+# 
+# df_players <- left_join(df_players, tmp_teams, by= c('team'='nameTeam')) %>%
+#   mutate(uniform = as.numeric(uniform))
+# 
+# 
+# df_players2 <- left_join(df_players, tmp_fullDetails, by= c('last'='namePlayerLast',
+#                                                             'idTeam'='idTeam',
+#                                                             'uniform'='numberJersey'))
+# 
+# tmp <- nba_players()
+# 
+# 
+# df_rosters %>%
+#   group_by(idTeam, numberJersey) %>%
+#   summarise(n = n()) %>%
+#   arrange(desc(n))
+# 
+# df_rosters %>%
+#   filter(idTeam == 1610612753 & numberJersey == 5)
