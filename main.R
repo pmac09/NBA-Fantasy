@@ -30,7 +30,7 @@ vTeamKey <- paste0(vLeagueKey, ".t.7")
 # Get League Info
 rawData <- getData(vToken, paste0(leagueURL,vLeagueKey))
 
-leagueStartDate <- as.Date(rawData$league$start_date)
+leagueStartDate <- as.Date(rawData$league$start_date) -1
 leagueCurrentDate <- as.Date(rawData$league$edit_key)
 
 # Get players
